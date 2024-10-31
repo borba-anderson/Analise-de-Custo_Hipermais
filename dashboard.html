@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dash Copapel - Controle de Gastos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #0056b3;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            width: 100%;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .content {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.2em;
+        }
+
+        h2 {
+            color: #0056b3;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .search-container input {
+            padding: 12px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: #80bdff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #0056b3;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .insert-btn, .exit-btn {
+            padding: 10px 20px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .insert-btn {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .insert-btn:hover {
+            background-color: #004085;
+        }
+
+        .exit-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .exit-btn:hover {
+            background-color: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .search-container input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>Hipermais</header>
+
+<div class="content">
+    <h1>Balanço Financeiro</h1>
+    <h2>R$ 9.995,12</h2>
+
+    <div class="chart-container">
+        <canvas id="gastoMensalChart"></canvas>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Pesquisar por descrição...">
+    </div>
+
+    <button class="insert-btn" onclick="insertItem()">Inserir Novo Item</button>
+    <button class="exit-btn" onclick="exitApp()">Sair</button>
+
+    <table id="gastosTable">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Açucar Alto Alegre 5KG</td><td>R$ 873,25</td></tr>
+            <tr><td>Adoçante Sucralose</td><td>R$ 36,93</td></tr>
+            <tr><td>Azeite Comp Olinda 500ML</td><td>R$ 303,02</td></tr>
+            <tr><td>Bala Dori Hortelã</td><td>R$ 51,36</td></tr>
+            <tr><td>Bala Dori Polar Cereja 600G</td><td>R$ 95,92</td></tr>
+            <tr><td>Biscoito Lilibel Amanteigado 250G</td><td>R$ 430,81</td></tr>
+            <tr><td>Café a Vácuo Melita Extra Forte</td><td>R$ 2.406,99</td></tr>
+            <tr><td>Café Nescafé 200G</td><td>R$ 2.444,17</td></tr>
+            <tr><td>Caixa de Leite Fechada 12 unid</td><td>R$ 2.616,25</td></tr>
+            <tr><td>Farinha Mandioca Sonia 1K</td><td>R$ 208,26</td></tr>
+            <tr><td>Molho de Pimenta Hemmer 150ML</td><td>R$ 209,25</td></tr>
+            <tr><td>Palito Dentl Fiat Lux c/200</td><td>R$ 40,31</td></tr>
+            <tr><td>Refrigerante 2LT</td><td>R$ 179,30</td></tr>
+            <tr><td>Sabão em Pó 4KG - Brilhante</td><td>R$ 273,59</td></tr>
+            <tr><td>Saco Freezer 5KG c/50</td><td>R$ 282,97</td></tr>
+            <tr><td>Sal 1KG</td><td>R$ 72,41</td></tr>
+            <tr><td>Vinagre Heinig 900ML</td><td>R$ 78,38</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const ctx = document.getElementById('gastoMensalChart').getContext('2d');
+
+    const gastoMensalChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro'],
+            datasets: [{
+                label: 'Gasto por Mês (R$)',
+                data: [1673.44, 981.42, 1059.49, 1026.99, 1541.99, 968.75, 833.42, 1038.02, 463.30, 790.01],
+                backgroundColor: '#72c3dc',
+                borderColor: '#0056b3',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                datalabels: {
+                    color: '#333',
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: value => 'R$ ' + value.toFixed(2)
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => 'R$ ' + value.toFixed(2)
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    const gastosTable = document.getElementById('gastosTable').getElementsByTagName('tbody')[0];
+
+    searchInput.addEventListener('input', function () {
+        const filter = searchInput.value.toLowerCase();
+        const rows = gastosTable.getElementsByTagName('tr');
+        
+        Array.from(rows).forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+
+    function exitApp() {
+        window.location.href = 'login.html'; // Redireciona para a página de login
+    }
+</script>
+
+</body>
+</html>
